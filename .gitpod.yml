@@ -136,12 +136,12 @@ tasks:
 
 vscode:
   extensions:
-    - ccls-project.ccls
-    - eamodio.gitlens
-    - haskell.haskell
-    - justusadam.language-haskell
-    - arrterian.nix-env-selector
-    - esbenp.prettier-vscode
-    - stkb.rewrap
-    - https://github.com/rust-lang/rust-analyzer/releases/download/2022-07-18/rust-analyzer-linux-x64.vsix
-    - timonwong.shellcheck
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/ccls-project.ccls-0.1.29.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/eamodio.gitlens-12.1.2.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/haskell.haskell-2.2.0.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/justusadam.language-haskell-3.6.0.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/arrterian.nix-env-selector-1.0.9.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/esbenp.prettier-vscode-9.5.0.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/stkb.rewrap-17.8.0.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/rust-lang.rust-analyzer-0.4.1136@linux-x64.vsix
+    - https://github.com/TerrorJack/gitpod-ghc/releases/download/dev/timonwong.shellcheck-0.19.6.vsix
