@@ -1,0 +1,147 @@
+github:
+  prebuilds:
+    branches: true
+    master: true
+
+image:
+  file: Dockerfile
+
+tasks:
+  - before: |
+      set -euxo pipefail
+
+      sudo chown $UID /etc/resolv.conf
+
+      for f in .cabal .cache .cargo .config .docker .ghc .ghcup .local .parallel .rustup .ssh
+      do
+        mkdir -p ~/$f
+        if [[ -d /workspace/$f ]]
+        then
+          rm -rf ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        mkdir ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      for f in .bash_history .bashrc .git-credentials .gitconfig .nix-channels .node_repl_history .python_history
+      do
+        touch ~/$f
+        if [[ -f /workspace/$f ]]
+        then
+          rm ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        touch ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      sudo mkdir -m 0755 /nix
+      sudo chown $UID /nix
+      mkdir -m 0755 -p /workspace/.nix
+      sudo mount --bind /workspace/.nix /nix
+
+    init: |
+      echo 'touch /tmp/.bashrc' >> ~/.bashrc
+      echo 'source /tmp/.bashrc' >> ~/.bashrc
+      echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+
+      echo 'Host *.gitpod.io' > ~/.ssh/config
+      echo '  StrictHostKeyChecking no' >> ~/.ssh/config
+      ssh-keyscan -H github.com > ~/.ssh/known_hosts
+      ssh-keyscan -H gitlab.haskell.org >> ~/.ssh/known_hosts
+
+      mkdir -p ~/.config/nix
+      echo "build-users-group =" > ~/.config/nix/nix.conf
+      echo "experimental-features = ca-derivations flakes impure-derivations nix-command" >> ~/.config/nix/nix.conf
+      echo "max-jobs = auto" >> ~/.config/nix/nix.conf
+      echo "sandbox = false" >> ~/.config/nix/nix.conf
+      echo "substituters = https://cache.nixos.org https://cache.iog.io" >> ~/.config/nix/nix.conf
+      echo "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" >> ~/.config/nix/nix.conf
+      curl -L https://nixos.org/nix/install | sh -s -- --no-channel-add --no-daemon --no-modify-profile
+      nix-collect-garbage -d
+      nix store optimise
+
+      curl -L https://get-ghcup.haskell.org | env BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION=9.2.3 sh
+      rm -rf ~/.ghcup/cache
+      sed -i -e 's/-- split-sections: False/split-sections: True/' -e 's/-- ghc-options:/ghc-options: -j/' ~/.cabal/config
+
+      pushd $(mktemp -d)
+      curl -L https://github.com/haskell/haskell-language-server/archive/refs/heads/master.tar.gz | tar xz --strip-components=1
+      sed -i 's/with-rtsopts=/with-rtsopts=--nonmoving-gc /g' haskell-language-server.cabal
+      cabal install \
+        exe:haskell-language-server \
+        apply-refact \
+        alex \
+        floskell \
+        fourmolu \
+        happy \
+        hiedb \
+        hlint \
+        hp2pretty \
+        hscolour \
+        ormolu \
+        pretty-simple \
+        retrie \
+        stylish-haskell
+      popd
+
+      git clone --recurse-submodules https://gitlab.haskell.org/ghc/ghc.git /workspace/ghc
+
+      pushd /workspace/ghc
+      cp -r /workspace/gitpod-ghc/.vscode .
+      ./boot --hadrian
+      ./configure
+      hadrian/build --version
+      popd
+
+    command: |
+      mkdir ~/.nix-defexpr
+      ln -s /nix/var/nix/profiles/per-user/$USER/channels ~/.nix-defexpr/channels
+      ln -s /nix/var/nix/profiles/per-user/root/channels ~/.nix-defexpr/channels_root
+      ln -s /nix/var/nix/profiles/per-user/$USER/profile ~/.nix-profile
+
+      dbus-launch --sh-syntax > /tmp/.bashrc
+      echo "export DBUS_SESSION_BUS_PID" >> /tmp/.bashrc
+      source /tmp/.bashrc
+      echo "" | gnome-keyring-daemon --unlock >> /tmp/.bashrc
+      echo "export GNOME_KEYRING_CONTROL" >> /tmp/.bashrc
+      echo "export SSH_AUTH_SOCK" >> /tmp/.bashrc
+      source /tmp/.bashrc
+
+      if [[ -v SSH_PRIVATE_KEY ]]
+      then
+        echo "-----BEGIN OPENSSH PRIVATE KEY-----" > /tmp/id-gitpod
+        printenv SSH_PRIVATE_KEY >> /tmp/id-gitpod
+        echo "-----END OPENSSH PRIVATE KEY-----" >> /tmp/id-gitpod
+        chmod 600 /tmp/id-gitpod
+        ssh-add /tmp/id-gitpod
+        rm /tmp/id-gitpod
+      fi
+
+      if [[ -v TAILSCALE_AUTHKEY ]]
+      then
+        sudo tailscaled &
+        sudo tailscale up --auth-key=$TAILSCALE_AUTHKEY
+      fi
+
+      if [[ -d /workspace/ghc ]]
+      then
+        code -r /workspace/ghc
+      fi
+
+      exit
+
+vscode:
+  extensions:
+    - ccls-project.ccls
+    - eamodio.gitlens
+    - haskell.haskell
+    - justusadam.language-haskell
+    - arrterian.nix-env-selector
+    - esbenp.prettier-vscode
+    - stkb.rewrap
+    - https://github.com/rust-lang/rust-analyzer/releases/download/2022-07-18/rust-analyzer-linux-x64.vsix
+    - timonwong.shellcheck
