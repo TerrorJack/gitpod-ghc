@@ -1,0 +1,111 @@
+github:
+  prebuilds:
+    branches: true
+    master: true
+
+image:
+  file: Dockerfile
+
+tasks:
+  - before: |
+      set -euxo pipefail
+
+      sudo chown $UID /etc/resolv.conf
+
+      for f in .cabal .cache .cargo .config .deno .docker .ghc .ghcup .gnupg .local .parallel .rustup .ssh
+      do
+        mkdir -p ~/$f
+        if [[ -d /workspace/$f ]]
+        then
+          rm -rf ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        mkdir ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      for f in .bash_history .bashrc .git-credentials .gitconfig .nix-channels .node_repl_history .python_history
+      do
+        touch ~/$f
+        if [[ -f /workspace/$f ]]
+        then
+          rm ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        touch ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      sudo mkdir -m 0755 /nix
+      sudo chown $UID /nix
+      mkdir -m 0755 -p /workspace/.nix
+      sudo mount --bind /workspace/.nix /nix
+
+    init: |
+      parallel --line-buffer bash ::: \
+        /workspace/gitpod-ghc/utils/init-bashrc.sh \
+        /workspace/gitpod-ghc/utils/init-deno.sh \
+        /workspace/gitpod-ghc/utils/init-ghc.sh \
+        /workspace/gitpod-ghc/utils/init-haskell.sh \
+        /workspace/gitpod-ghc/utils/init-mold.sh \
+        /workspace/gitpod-ghc/utils/init-nix.sh \
+        /workspace/gitpod-ghc/utils/init-proot.sh \
+        /workspace/gitpod-ghc/utils/init-rust.sh \
+        /workspace/gitpod-ghc/utils/init-sccache.sh \
+        /workspace/gitpod-ghc/utils/init-ssh.sh
+
+      /workspace/gitpod-ghc/utils/init-hls.sh
+      /workspace/gitpod-ghc/utils/prebuild-ghc.sh
+
+    command: |
+      mkdir ~/.nix-defexpr
+      ln -s /nix/var/nix/profiles/per-user/$USER/channels ~/.nix-defexpr/channels
+      ln -s /nix/var/nix/profiles/per-user/root/channels ~/.nix-defexpr/channels_root
+      ln -s /nix/var/nix/profiles/per-user/$USER/profile ~/.nix-profile
+
+      dbus-launch --sh-syntax > /tmp/.bashrc
+      echo "export DBUS_SESSION_BUS_PID" >> /tmp/.bashrc
+      source /tmp/.bashrc
+      echo "" | gnome-keyring-daemon --unlock >> /tmp/.bashrc
+      echo "export GNOME_KEYRING_CONTROL" >> /tmp/.bashrc
+      echo "export SSH_AUTH_SOCK" >> /tmp/.bashrc
+      source /tmp/.bashrc
+
+      if [[ -v SSH_PRIVATE_KEY ]]
+      then
+        echo "-----BEGIN OPENSSH PRIVATE KEY-----" > /tmp/id-gitpod
+        printenv SSH_PRIVATE_KEY >> /tmp/id-gitpod
+        echo "-----END OPENSSH PRIVATE KEY-----" >> /tmp/id-gitpod
+        chmod 600 /tmp/id-gitpod
+        ssh-add /tmp/id-gitpod
+        rm /tmp/id-gitpod
+      fi
+
+      if [[ -v TAILSCALE_AUTHKEY ]]
+      then
+        sudo tailscaled &
+        sudo tailscale up --auth-key=$TAILSCALE_AUTHKEY
+      fi
+
+      if [[ -d /workspace/ghc ]]
+      then
+        code -r /workspace/ghc
+      fi
+
+      exit
+
+vscode:
+  extensions:
+    - ccls-project.ccls
+    - eamodio.gitlens
+    - haskell.haskell
+    - justusadam.language-haskell
+    - arrterian.nix-env-selector
+    - esbenp.prettier-vscode
+    - ms-python.python
+    - stkb.rewrap
+    - https://github.com/rust-lang/rust-analyzer/releases/download/2022-07-25/rust-analyzer-linux-x64.vsix
+    - timonwong.shellcheck
+    - ms-azuretools.vscode-docker
