@@ -1,0 +1,10 @@
+# shellcheck shell=bash
+
+if [[ -d /nix/var/nix/profiles/per-user/$USER/profile/share/bash-completion/completions ]]
+then
+  mkdir -p "$HOME/.local/share/bash-completion/completions"
+  for i in $(ls -A /nix/var/nix/profiles/per-user/$USER/profile/share/bash-completion/completions)
+  do
+    ln -sf "/nix/var/nix/profiles/per-user/$USER/profile/share/bash-completion/completions/$i" "$HOME/.local/share/bash-completion/completions/$i"
+  done
+fi

@@ -1,0 +1,101 @@
+github:
+  prebuilds:
+    branches: true
+    master: true
+
+image:
+  file: Dockerfile
+
+tasks:
+  - before: |
+      set -euxo pipefail
+
+      sudo chown $USER:$USER /etc/resolv.conf
+
+      for f in .bashrc.d .cabal .cache .cargo .config .deno .docker .elan .ghc .ghcup .gnupg .local .opam .parallel .rustup .ssh .vcpkg .wine
+      do
+        mkdir -p ~/$f
+        if [[ -d /workspace/$f ]]
+        then
+          rm -rf ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        mkdir ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      for f in .bash_history .bashrc .git-credentials .gitconfig .nix-channels .node_repl_history .npmrc .python_history
+      do
+        touch ~/$f
+        if [[ -f /workspace/$f ]]
+        then
+          rm ~/$f
+        else
+          mv ~/$f /workspace
+        fi
+        touch ~/$f
+        sudo mount --bind /workspace/$f ~/$f
+      done
+
+      sudo mkdir -m 0755 /nix
+      sudo chown $USER:$USER /nix
+      mkdir -m 0755 -p /workspace/.nix
+      sudo mount --bind /workspace/.nix /nix
+
+    init: |
+      /workspace/gitpod-ghc/utils/init-mold.sh \
+
+      parallel --halt now,fail=1 --line-buffer bash ::: \
+        /workspace/gitpod-ghc/utils/init-bashrc.sh \
+        /workspace/gitpod-ghc/utils/init-cloc.sh \
+        /workspace/gitpod-ghc/utils/init-deno.sh \
+        /workspace/gitpod-ghc/utils/init-difft.sh \
+        /workspace/gitpod-ghc/utils/init-elfshaker.sh \
+        /workspace/gitpod-ghc/utils/init-ghc.sh \
+        /workspace/gitpod-ghc/utils/init-haskell.sh \
+        /workspace/gitpod-ghc/utils/init-nix.sh \
+        /workspace/gitpod-ghc/utils/init-proot.sh \
+        /workspace/gitpod-ghc/utils/init-python-tools.sh \
+        /workspace/gitpod-ghc/utils/init-rust.sh \
+        /workspace/gitpod-ghc/utils/init-sccache.sh \
+        /workspace/gitpod-ghc/utils/init-ssh.sh \
+        /workspace/gitpod-ghc/utils/init-vcpkg.sh
+
+      /workspace/gitpod-ghc/utils/init-hls.sh
+
+      pushd /workspace/ghc
+      ./configure
+      /workspace/gitpod-ghc/utils/prebuild-ghc.sh
+      popd
+
+    command: |
+      for i in $(ls -A $HOME/.bashrc.d)
+      do
+        source $HOME/.bashrc.d/$i
+      done
+
+      if [[ -d /workspace/ghc ]]
+      then
+        sleep 4
+        code -r /workspace/ghc
+      fi
+
+      exit
+
+vscode:
+  extensions:
+    - denoland.vscode-deno
+    - eamodio.gitlens
+    - haskell.haskell
+    - justusadam.language-haskell
+    - leanprover.lean4
+    - arrterian.nix-env-selector
+    - ocamllabs.ocaml-platform
+    - esbenp.prettier-vscode
+    - ms-python.python
+    - stkb.rewrap
+    - rust-lang.rust-analyzer
+    - timonwong.shellcheck
+    - llvm-vs-code-extensions.vscode-clangd
+    - ms-azuretools.vscode-docker

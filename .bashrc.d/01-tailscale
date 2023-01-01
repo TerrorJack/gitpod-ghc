@@ -1,0 +1,11 @@
+# shellcheck shell=bash
+
+if [[ -v TAILSCALE_AUTHKEY ]]
+then
+  if [[ ! -f /tmp/.tailscaled.log ]]
+  then
+    nohup sudo tailscaled &> /tmp/.tailscaled.log &
+    sudo tailscale up --auth-key "$TAILSCALE_AUTHKEY"
+  fi
+  unset TAILSCALE_AUTHKEY
+fi

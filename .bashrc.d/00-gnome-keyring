@@ -1,0 +1,24 @@
+# shellcheck shell=bash
+
+if [[ ! -f /tmp/.bashrc ]]
+then
+  dbus-launch --config-file=/usr/share/dbus-1/system.conf --sh-syntax > /tmp/.bashrc
+  echo "export DBUS_SESSION_BUS_PID" >> /tmp/.bashrc
+  source /tmp/.bashrc
+  echo "" | gnome-keyring-daemon --unlock >> /tmp/.bashrc
+  echo "export GNOME_KEYRING_CONTROL" >> /tmp/.bashrc
+  echo "export SSH_AUTH_SOCK" >> /tmp/.bashrc
+fi
+
+source /tmp/.bashrc
+
+if [[ -v SSH_PRIVATE_KEY ]]
+then
+  echo "-----BEGIN OPENSSH PRIVATE KEY-----" > /tmp/id-gitpod
+  printenv SSH_PRIVATE_KEY >> /tmp/id-gitpod
+  echo "-----END OPENSSH PRIVATE KEY-----" >> /tmp/id-gitpod
+  chmod 600 /tmp/id-gitpod
+  ssh-add -q /tmp/id-gitpod
+  rm -f /tmp/id-gitpod
+  unset SSH_PRIVATE_KEY
+fi
