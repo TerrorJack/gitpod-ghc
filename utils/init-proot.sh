@@ -2,6 +2,6 @@
 
 set -euo pipefail
 
-mkdir -p ~/.local/bin
-curl -f -L --retry 5 https://proot.gitlab.io/proot/bin/proot -o ~/.local/bin/proot
-chmod +x ~/.local/bin/proot
+mkdir -p "$XDG_BIN_HOME"
+curl -f -L --retry 5 https://proot.gitlab.io/proot/bin/proot -o "$XDG_BIN_HOME/proot"
+chmod +x "$XDG_BIN_HOME/proot"

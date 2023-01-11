@@ -41,7 +41,6 @@ RUN \
   add-apt-repository -y ppa:rabbitmq/rabbitmq-erlang && \
   apt-add-repository -y ppa:swi-prolog/stable && \
   apt install -y \
-    asciinema \
     automake \
     bash-completion \
     bear \
@@ -72,18 +71,17 @@ RUN \
     gnome-keyring \
     htop \
     jq \
-    libaria2-0-dev \
     libdw-dev \
     libfuzzer-15-dev \
     libgmp-dev \
     libgtk-3-dev \
     libncurses5 \
     libnuma-dev \
-    libsodium-dev \
     libssl-dev \
     libuv1-dev \
     libxxhash-dev \
     libzstd-dev \
+    lldb-15 \
     lld-15 \
     llvm-15-dev \
     locales-all \
@@ -97,7 +95,6 @@ RUN \
     parallel \
     patchelf \
     pkg-config \
-    powershell \
     psmisc \
     python-dev-is-python3 \
     python3-clang-15 \
@@ -117,8 +114,6 @@ RUN \
     texinfo \
     time \
     tk-dev \
-    tmate \
-    tor-geoipdb \
     unzip \
     valgrind \
     z3 \
@@ -128,23 +123,20 @@ RUN \
   echo "%sudo ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudo && \
   chmod 0440 /etc/sudoers.d/sudo && \
   useradd -G sudo -m -u ${UID} ${USER} && \
-  mkdir /home/${USER}/.bashrc.d && \
-  echo 'for i in $(ls -A $HOME/.bashrc.d); do source $HOME/.bashrc.d/$i; done' >> /home/${USER}/.bashrc && \
-  echo "prefix = /home/${USER}/.local" >> /home/${USER}/.npmrc && \
-  echo "update-notifier = false" >> /home/${USER}/.npmrc && \
-  mkdir /run/dbus /run/tailscale && \
+  mkdir -p \
+    /run/dbus \
+    /run/tailscale \
+    /workspace/.bashrc.d && \
+  touch /home/${USER}/.sudo_as_admin_successful && \
+  for f in .bash_history .bashrc; do mv /home/${USER}/$f /workspace/$f && ln -s /workspace/$f /home/${USER}/$f; done && \
+  echo 'for i in $(ls -A /workspace/.bashrc.d); do source /workspace/.bashrc.d/$i; done' >> /workspace/.bashrc && \
   chown -hR ${USER}:${USER} \
     /home/${USER} \
     /run/dbus \
-    /run/tailscale && \
-  cd /tmp && \
-  su ${USER} -c 'export PATH=$HOME/.local/bin:$PATH && npm install -g n && N_PREFIX=$HOME/.local n latest && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install playwright && npx playwright install-deps' && \
-  rm \
-    /etc/apt/sources.list.d/nodesource.list \
-    /etc/apt/trusted.gpg.d/nodesource.gpg && \
+    /run/tailscale \
+    /workspace && \
   apt purge -y \
-    mawk \
-    nodejs && \
+    mawk && \
   add-apt-repository -y ppa:ubuntu-toolchain-r/ppa && \
   apt full-upgrade -y && \
   apt autoremove --purge -y && \
@@ -160,14 +152,27 @@ USER ${USER}
 WORKDIR /home/${USER}
 
 ENV \
-  CAML_LD_LIBRARY_PATH="/home/${USER}/.opam/default/lib/stublibs:/home/${USER}/.opam/default/lib/ocaml/stublibs:/home/${USER}/.opam/default/lib/ocaml" \
+  CAML_LD_LIBRARY_PATH="/workspace/.local/share/opam/default/lib/stublibs:/workspace/.local/share/opam/default/lib/ocaml/stublibs:/workspace/.local/share/opam/default/lib/ocaml" \
+  GHCUP_USE_XDG_DIRS=1 \
   GITLAB_HOST=gitlab.haskell.org \
   LANG=en_US.utf8 \
-  MANPATH=":/home/${USER}/.opam/default/man" \
+  MANPATH=":/workspace/.local/share/opam/default/man" \
   NIX_PROFILES="/nix/var/nix/profiles/default /nix/var/nix/profiles/per-user/${USER}/profile" \
-  NIX_SSL_CERT_FILE="/etc/ssl/certs/ca-certificates.crt" \
-  N_PREFIX="/home/${USER}/.local" \
-  OCAML_TOPLEVEL_PATH="/home/${USER}/.opam/default/lib/toplevel" \
-  OPAM_SWITCH_PREFIX="/home/${USER}/.opam/default" \
-  PATH="/home/${USER}/.cabal/bin:/home/${USER}/.ghcup/bin:/home/${USER}/.cargo/bin:/home/${USER}/.deno/bin:/home/${USER}/.elan/bin:/home/${USER}/.opam/default/bin:/home/${USER}/.pack/bin:/home/${USER}/.local/bin:/home/${USER}/.vcpkg:/nix/var/nix/profiles/per-user/${USER}/profile/bin:/usr/lib/llvm-15/bin:${PATH}" \
-  VCPKG_ROOT="/home/${USER}/.vcpkg"
+  NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+  NODE_REPL_HISTORY=/workspace/.local/share/node_repl_history \
+  N_PREFIX=/workspace/.local/n \
+  OCAML_TOPLEVEL_PATH="/workspace/.local/share/opam/default/lib/toplevel" \
+  OPAMROOT=/workspace/.local/share/opam \
+  OPAM_SWITCH_PREFIX="/workspace/.local/share/opam/default" \
+  PARALLEL_HOME=/workspace/.config/parallel \
+  PATH="/home/${USER}/.cargo/bin:/home/${USER}/.deno/bin:/home/${USER}/.elan/bin:/workspace/.local/share/opam/default/bin:/home/${USER}/.pack/bin:/workspace/.vcpkg:/workspace/.local/share/python/bin:/workspace/.local/n/bin:/workspace/.local/bin:/nix/var/nix/profiles/per-user/${USER}/profile/bin:/usr/lib/llvm-15/bin:${PATH}" \
+  PYTHONPYCACHEPREFIX=/workspace/.cache/python \
+  PYTHONUSERBASE=/workspace/.local/share/python \
+  RIPGREP_CONFIG_PATH=/workspace/.config/ripgrep/config \
+  VCPKG_ROOT=/workspace/.vcpkg \
+  WINEPREFIX=/workspace/.local/share/wineprefixes/default \
+  XDG_BIN_HOME=/workspace/.local/bin \
+  XDG_CACHE_HOME=/workspace/.cache \
+  XDG_CONFIG_HOME=/workspace/.config \
+  XDG_DATA_HOME=/workspace/.local/share \
+  XDG_STATE_HOME=/workspace/.local/state

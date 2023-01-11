@@ -12,7 +12,7 @@ tasks:
 
       sudo chown $USER:$USER /etc/resolv.conf
 
-      for f in .bashrc.d .cabal .cache .cargo .config .deno .docker .elan .ghc .ghcup .gnupg .local .opam .parallel .rustup .ssh .vcpkg .wine
+      for f in .cargo .deno .docker .elan .gnupg .opam .parallel .rustup .ssh .wine
       do
         mkdir -p ~/$f
         if [[ -d /workspace/$f ]]
@@ -25,7 +25,7 @@ tasks:
         sudo mount --bind /workspace/$f ~/$f
       done
 
-      for f in .bash_history .bashrc .git-credentials .gitconfig .nix-channels .node_repl_history .npmrc .python_history
+      for f in .nix-channels .python_history
       do
         touch ~/$f
         if [[ -f /workspace/$f ]]
@@ -50,7 +50,6 @@ tasks:
         /workspace/gitpod-ghc/utils/init-bashrc.sh \
         /workspace/gitpod-ghc/utils/init-cloc.sh \
         /workspace/gitpod-ghc/utils/init-deno.sh \
-        /workspace/gitpod-ghc/utils/init-difft.sh \
         /workspace/gitpod-ghc/utils/init-elfshaker.sh \
         /workspace/gitpod-ghc/utils/init-ghc.sh \
         /workspace/gitpod-ghc/utils/init-haskell.sh \
@@ -70,9 +69,9 @@ tasks:
       popd
 
     command: |
-      for i in $(ls -A $HOME/.bashrc.d)
+      for i in $(ls -A /workspace/.bashrc.d)
       do
-        source $HOME/.bashrc.d/$i
+        source /workspace/.bashrc.d/$i
       done
 
       if [[ -d /workspace/ghc ]]
@@ -86,6 +85,7 @@ tasks:
 vscode:
   extensions:
     - denoland.vscode-deno
+    - dhall.dhall-lang
     - eamodio.gitlens
     - haskell.haskell
     - justusadam.language-haskell
@@ -98,4 +98,5 @@ vscode:
     - rust-lang.rust-analyzer
     - timonwong.shellcheck
     - llvm-vs-code-extensions.vscode-clangd
+    - dhall.vscode-dhall-lsp-server
     - ms-azuretools.vscode-docker

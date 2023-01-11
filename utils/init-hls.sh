@@ -20,8 +20,10 @@ cabal install \
   aeson-pretty \
   alex \
   bench \
+  cabal-fmt \
   eventlog2html \
   floskell \
+  fourmolu \
   ghcid \
   happy \
   hiedb \
@@ -30,6 +32,8 @@ cabal install \
   hoogle \
   hp2pretty \
   hscolour \
-  pretty-simple
+  ormolu \
+  pretty-simple \
+  stylish-haskell
 
 popd

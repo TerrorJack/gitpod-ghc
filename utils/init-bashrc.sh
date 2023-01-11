@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cp -a /workspace/gitpod-ghc/.bashrc.d/. ~/.bashrc.d
+cp -a /workspace/gitpod-ghc/.bashrc.d/. /workspace/.bashrc.d

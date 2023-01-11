@@ -10,6 +10,6 @@ pushd "$VCPKG_ROOT"
 
 ./bootstrap-vcpkg.sh
 
-ln -sf "$VCPKG_ROOT/scripts/vcpkg_completion.bash" ~/.bashrc.d/03-vcpkg
+ln -sf "$VCPKG_ROOT/scripts/vcpkg_completion.bash" /workspace/.bashrc.d/03-vcpkg
 
 popd
