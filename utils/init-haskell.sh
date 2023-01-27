@@ -6,9 +6,8 @@ pushd "$(mktemp -d)"
 
 curl -f -L --retry 5 https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_MINIMAL=1 sh
 
-curl -f -L --retry 5 https://nightly.link/haskell/cabal/actions/runs/3861709471/cabal-Linux-9.2.3.zip -o cabal.zip
-unzip cabal.zip
-tar xf cabal-head.tar -C "$XDG_BIN_HOME" cabal
+ghcup install cabal 3.9.0.0 -u "https://downloads.haskell.org/cabal/cabal-install-3.9.0.0/cabal-install-3.9-x86_64-linux-alpine.tar.xz"
+ghcup set cabal 3.9.0.0
 
 cabal user-config init
 sed -i \

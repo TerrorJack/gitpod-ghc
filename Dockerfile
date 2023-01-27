@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.10
 
 ARG UID=33333
 ARG USER=gitpod
@@ -12,33 +12,28 @@ RUN \
     gnupg \
     software-properties-common && \
   curl -f -L --retry 5 https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg && \
-  echo "deb https://download.docker.com/linux/ubuntu jammy stable" >> /etc/apt/sources.list.d/docker.list && \
-  curl -f -L --retry 5 https://packagecloud.io/github/git-lfs/gpgkey | gpg --dearmor -o /etc/apt/trusted.gpg.d/github_git-lfs-archive-keyring.gpg && \
-  echo "deb https://packagecloud.io/github/git-lfs/ubuntu jammy main" >> /etc/apt/sources.list.d/github_git-lfs.list && \
+  echo "deb https://download.docker.com/linux/ubuntu kinetic stable" >> /etc/apt/sources.list.d/docker.list && \
   curl -f -L --retry 5 https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg && \
   echo "deb https://cli.github.com/packages stable main" >> /etc/apt/sources.list.d/github-cli.list && \
   curl -f -L --retry 5 https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/trusted.gpg.d/google.gpg && \
   echo "deb https://dl.google.com/linux/chrome/deb stable main" >> /etc/apt/sources.list.d/google.list && \
   curl -f -L --retry 5 https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/llvm-snapshot.gpg && \
-  echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
-  echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-15 main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
-  echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-14 main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
-  echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-13 main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
+  echo "deb https://apt.llvm.org/kinetic llvm-toolchain-kinetic main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
+  echo "deb https://apt.llvm.org/kinetic llvm-toolchain-kinetic-15 main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
+  echo "deb https://apt.llvm.org/kinetic llvm-toolchain-kinetic-14 main" >> /etc/apt/sources.list.d/llvm-toolchain.list && \
   curl -f -L --retry 5 https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft-prod.gpg && \
-  echo "deb https://packages.microsoft.com/ubuntu/22.04/prod jammy main" >> /etc/apt/sources.list.d/microsoft-prod.list && \
+  echo "deb https://packages.microsoft.com/ubuntu/22.10/prod kinetic main" >> /etc/apt/sources.list.d/microsoft-prod.list && \
   curl -f -L --retry 5 https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg && \
-  echo "deb https://deb.nodesource.com/node_19.x jammy main" >> /etc/apt/sources.list.d/nodesource.list && \
+  echo "deb https://deb.nodesource.com/node_19.x kinetic main" >> /etc/apt/sources.list.d/nodesource.list && \
   curl -f -L --retry 5 "https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub" | gpg --dearmor -o /etc/apt/trusted.gpg.d/prebuilt-mpr-archive-keyring.gpg && \
-  echo "deb https://proget.makedeb.org prebuilt-mpr jammy" > /etc/apt/sources.list.d/prebuilt-mpr.list && \
-  curl -f -L --retry 5 https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg -o /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg && \
-  echo "deb https://pkgs.tailscale.com/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/tailscale.list && \
+  echo "deb https://proget.makedeb.org prebuilt-mpr kinetic" > /etc/apt/sources.list.d/prebuilt-mpr.list && \
+  curl -f -L --retry 5 https://pkgs.tailscale.com/stable/ubuntu/kinetic.noarmor.gpg -o /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg && \
+  echo "deb https://pkgs.tailscale.com/stable/ubuntu kinetic main" >> /etc/apt/sources.list.d/tailscale.list && \
   curl -f -L --retry 5 https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/tor-archive-keyring.gpg && \
-  echo "deb https://deb.torproject.org/torproject.org jammy main" > /etc/apt/sources.list.d/tor.list && \
+  echo "deb https://deb.torproject.org/torproject.org kinetic main" > /etc/apt/sources.list.d/tor.list && \
   curl -f -L --retry 5 https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/winehq.gpg && \
-  echo "deb https://dl.winehq.org/wine-builds/ubuntu jammy main" > /etc/apt/sources.list.d/winehq.list && \
+  echo "deb https://dl.winehq.org/wine-builds/ubuntu kinetic main" > /etc/apt/sources.list.d/winehq.list && \
   add-apt-repository -y ppa:git-core/ppa && \
-  add-apt-repository -y ppa:plt/racket && \
-  add-apt-repository -y ppa:rabbitmq/rabbitmq-erlang && \
   apt-add-repository -y ppa:swi-prolog/stable && \
   apt install -y \
     automake \
@@ -61,7 +56,7 @@ RUN \
     flex \
     g++ \
     gawk \
-    gcc-11-plugin-dev \
+    gcc-12-plugin-dev \
     gdb \
     gh \
     ghostscript \
@@ -128,7 +123,7 @@ RUN \
     /run/tailscale \
     /workspace/.bashrc.d && \
   touch /home/${USER}/.sudo_as_admin_successful && \
-  for f in .bash_history .bashrc; do mv /home/${USER}/$f /workspace/$f && ln -s /workspace/$f /home/${USER}/$f; done && \
+  for f in .bash_history .bash_logout .bashrc .profile; do mv /home/${USER}/$f /workspace/$f && ln -s /workspace/$f /home/${USER}/$f; done && \
   echo 'for i in $(ls -A /workspace/.bashrc.d); do source /workspace/.bashrc.d/$i; done' >> /workspace/.bashrc && \
   chown -hR ${USER}:${USER} \
     /home/${USER} \

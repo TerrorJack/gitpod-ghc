@@ -19,7 +19,7 @@ cmake \
   -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld -s" \
   -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld -s" \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-  -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+  -DCMAKE_INSTALL_PREFIX=/workspace/.local \
   -G Ninja
 
 cmake --build build

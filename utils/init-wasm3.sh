@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-mkdir -p ~/.local/bin
+mkdir -p "$XDG_BIN_HOME"
 
 pushd "$(mktemp -d)"
 
@@ -25,6 +25,6 @@ cmake \
 
 cmake --build build
 
-cp build/wasm3 ~/.local/bin
+cp build/wasm3 "$XDG_BIN_HOME"
 
 popd

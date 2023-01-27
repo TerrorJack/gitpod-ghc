@@ -16,7 +16,7 @@ cmake \
   -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" \
   -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld" \
   -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
-  -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+  -DCMAKE_INSTALL_PREFIX=/workspace/.local \
   -DCMAKE_PREFIX_PATH=/usr/lib/llvm-15 \
   -G Ninja
 

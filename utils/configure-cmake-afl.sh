@@ -8,5 +8,5 @@ exec cmake \
   -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-  -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+  -DCMAKE_INSTALL_PREFIX=/workspace/.local \
   -G Ninja
