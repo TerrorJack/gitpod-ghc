@@ -34,6 +34,7 @@ RUN \
   curl -f -L --retry 5 https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/winehq.gpg && \
   echo "deb https://dl.winehq.org/wine-builds/ubuntu kinetic main" > /etc/apt/sources.list.d/winehq.list && \
   add-apt-repository -y ppa:git-core/ppa && \
+  add-apt-repository -y ppa:pypy/ppa && \
   apt-add-repository -y ppa:swi-prolog/stable && \
   apt install -y \
     automake \
@@ -91,6 +92,7 @@ RUN \
     patchelf \
     pkg-config \
     psmisc \
+    pypy3 \
     python-dev-is-python3 \
     python3-clang-15 \
     python3-full \
